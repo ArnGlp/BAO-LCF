@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Bibliothèque de documents</title>
+    <style>
+        /* ========= THÈMES (variables CSS) ========= */
+        :root {
+            --bg: #f5f7fb;
+            --header-gradient: linear-gradient(135deg, #4c6fff, #8f5aff);
+            --header-text: #ffffff;
+            --primary: #4c6fff;
+            --primary-hover: #3b57d6;
+            --border: #d0d4e4;
+            --card-bg: #ffffff;
+            --card-border: #e2e6f5;
+            --text-main: #111827;
+            --text-muted: #555555;
+            --text-soft: #999999;
+            --chip-bg: #eef1ff;
+            --chip-text: #4c6fff;
+            --pill-bg: #f3f4ff;
+            --sidebar-bg: #ffffff;
+            --sidebar-border: #e5e7eb;
+            --shadow-soft: 0 2px 6px rgba(0,0,0,0.05);
+            --shadow-header: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        /* --- Thème sombre --- */
+        [data-theme="sombre"] {
+            --bg: #020617;
+            --header-gradient: linear-gradient(135deg, #020617, #111827);
+            --header-text: #e5e7eb;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --border: #1f2937;
+            --card-bg: #020617;
+            --card-border: #1f2937;
+            --text-main: #e5e7eb;
+            --text-muted: #9ca3af;
+            --text-soft: #6b7280;
+            --chip-bg: #111827;
+            --chip-text: #a5b4fc;
+            --pill-bg: #111827;
+            --sidebar-bg: #020617;
+            --sidebar-border: #1f2937;
+            --shadow-soft: 0 2px 10px rgba(0,0,0,0.6);
+            --shadow-header: 0 2px 10px rgba(0,0,0,0.8);
+        }
+        /* Rendre la sidebar lisible en sombre */
+        [data-theme="sombre"] .sidebar,
+        [data-theme="sombre"] .sidebar h2,
+        [data-theme="sombre"] .filter-btn,
+        [data-theme="sombre"] .filter-btn span,
+        [data-theme="sombre"] #folderList li,
+        [data-theme="sombre"] #categoryList li,
+        [data-theme="sombre"] #subCategoryList li {
+            color: #e5e7eb !important;
+        }
+        /* Titre de sous-catégorie en clair dans le thème sombre */
+        [data-theme="sombre"] #subCategoryTitle {
+            color: #e5e7eb !important;
+        }
+        /* --- Thème océan --- */
+        [data-theme="ocean"] {
+            --bg: #e0f2fe;
+            --header-gradient: linear-gradient(135deg, #0284c7, #22c55e);
+            --header-text: #f0f9ff;
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --border: #7dd3fc;
+            --card-bg: #f0f9ff;
+            --card-border: #bae6fd;
+            --text-main: #0f172a;
+            --text-muted: #1f2937;
+            --text-soft: #64748b;
+            --chip-bg: #dcfce7;
+            --chip-text: #047857;
+            --pill-bg: #e0f2fe;
+            --sidebar-bg: #e0f2fe;
+            --sidebar-border: #7dd3fc;
+            --shadow-soft: 0 2px 8px rgba(15,23,42,0.25);
+            --shadow-header: 0 2px 8px rgba(15,23,42,0.35);
+        }
+        /* --- Thème fun --- */
+        [data-theme="fun"] {
+            --bg: #fff7ed;
+            --header-gradient: linear-gradient(135deg, #fb7185, #f97316);
+            --header-text: #fff7ed;
+            --primary: #ec4899;
+            --primary-hover: #db2777;
+            --border: #fed7aa;
+            --card-bg: #fffbeb;
+            --card-border: #fed7aa;
+            --text-main: #3f1f0f;
+            --text-muted: #7c2d12;
+            --text-soft: #a16207;
+            --chip-bg: #fee2e2;
+            --chip-text: #b91c1c;
+            --pill-bg: #ffedd5;
+            --sidebar-bg: #fffbeb;
+            --sidebar-border: #fed7aa;
+            --shadow-soft: 0 2px 8px rgba(180,83,9,0.25);
+            --shadow-header: 0 2px 8px rgba(124,45,18,0.4);
+        }
+        /* ========= BASE LAYOUT ========= */
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+        header {
+            background: var(--header-gradient);
+            color: var(--header-text);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-header);
+			position: relative;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        header p {
+            margin: 4px 0 0;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+        .header-right select {
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: none;
+            outline: none;
+        }
+        .layout {
+            max-width: 1200px;
+            margin: 16px auto 32px;
+            display: grid;
+            grid-template-columns: 230px 280px 1fr;
+            gap: 16px;
+            padding: 0 12px;
+        }
+        .sidebar {
+            background: var(--sidebar-bg);
+            border-radius: 14px;
+            border: 1px solid var(--sidebar-border);
+            box-shadow: var(--shadow-soft);
+            padding: 12px 12px 10px;
+            font-size: 0.9rem;
+        }
+        .sidebar h2 {
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+        }
+        .sidebar-section {
+            margin-bottom: 12px;
+        }
+        .folder-list, .category-list {
+            list-style: none;
+            padding: 0;
+            margin: 6px 0;
+        }
+        .folder-list li,
+        .category-list li {
+            margin-bottom: 4px;
+        }
+        .filter-btn {
+            width: 100%;
+            text-align: left;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            padding: 4px 8px;
+            font-size: 0.82rem;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: inherit;
+        }
+        .filter-btn span {
+            font-size: 1rem;
+        }
+        .filter-btn.active {
+            background: var(--pill-bg);
+            border-color: var(--border);
+            font-weight: 600;
+        }
+        .filter-btn:hover {
+            background: var(--pill-bg);
+        }
+        .main {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toolbar {
+            background: transparent;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .toolbar input[type="text"] {
+            flex: 1 1 240px;
+            padding: 7px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .toolbar select {
+            padding: 7px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text-main);
+            font-size: 0.85rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 12px 14px;
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+        .card-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .chip {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: var(--chip-bg);
+            color: var(--chip-text);
+        }
+	.folder-tag {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(148,163,184,0.15);
+            color: var(--text-soft);
+        }
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            min-height: 32px;
+        }
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+        }
+        .pill {
+            font-size: 0.8rem;
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: var(--pill-bg);
+            color: var(--primary);
+            text-decoration: none;
+            border: 1px solid transparent;
+        }
+        .pill:hover {
+            background: #dbeafe;
+            border-color: var(--primary);
+        }
+        .small {
+            font-size: 0.75rem;
+            color: var(--text-soft);
+            text-align: right;
+        }
+        .empty-state {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-soft);
+            padding: 10px 12px 20px;
+        }
+        footer strong {
+            color: var(--text-main);
+        }
+        @media (max-width: 800px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div>
+        <h1>La boite à outils 🧰</h1>
+        <p>tous tes liens ou fichiers au même endroit.</p>
+    </div>
+
+    <div style="
+        position:absolute;
+        left:50%;
+        top:50%;
+        transform:translate(-50%, -50%);
+        font-size:1.2rem;
+        font-weight:700;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        white-space:nowrap;
+        pointer-events:none;
+    ">
+        🕵️‍♂️ Service Lutte contre la fraude
+    </div>
+
+    <button id="adminBtn" style="margin-right:10px;padding:6px 12px;border-radius:999px;border:1px solid #ccc;cursor:pointer;">⚙ Administration</button>
+    <div class="header-right">
+        Thème :
+        <select id="themeSelector">
+            <option value="clair">Clair</option>
+            <option value="sombre">Sombre</option>
+            <option value="ocean">Océan</option>
+            <option value="fun">Fun</option>
+        </select>
+    </div>
+</header>
+<div class="layout">
+    <!-- SIDEBAR : catégories, sous-catégories, sous-dossiers -->
+    <aside class="sidebar">
+        <div class="sidebar-section">
+            <h2>⭐ Favoris</h2>
+            <ul id="favoritesList" class="category-list"></ul>
+        </div>
+        
+        <div class="sidebar-section">
+            <h2>Catégories</h2>
+            <ul id="categoryList" class="category-list"></ul>
+        </div>
+
+<div style="display:none">
+    <ul id="folderList"></ul>
+</div>
+
+        
+    </aside>
+
+    <aside class="sidebar" id="subCategorySection">
+        <div class="sidebar-section">
+            <h2>Sous-catégories</h2>
+            <ul id="subCategoryList" class="category-list"></ul>
+        </div>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <main class="main">
+
+        <div class="toolbar">
+            <input id="searchInput" type="text" placeholder="Rechercher un document…">
+            <select id="sortSelector" style="display:none"><option value="titre">Titre</option></select>
+        </div>
+        <div id="breadcrumb" style="font-size:0.9rem;color:var(--text-muted);margin-bottom:4px;">🏠 Accueil</div><div id="subCategoryTitle"
+             style="font-size:1.1rem; font-weight:600; margin:6px 0 4px; color:var(--primary); display:none;">
+        </div>
+        <div id="cardsContainer" class="grid"></div>
+        <div id="emptyState" class="empty-state" style="display:none;">
+            Aucun document ne correspond à la recherche / aux filtres.
+        </div>
+    </main>
+</div>
+<footer>
+    <strong>Service SLCF 🕵️‍♂️</strong> - Usage interne uniquement — Ne pas diffuser sans autorisation.<br>
+    MHK© 2025 - Tous droits réservés.
+</footer>
+<script>
+    // ========= FONCTIONS UTILITAIRES =========
+    // Convertit un chemin vers une URL utilisable (gère https, \\serveur\ et W:\)
+    function convertPathToFileUrl(path) {
+        if (!path) return path;
+        // Lien web -> on ne touche pas
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            return path;
+        }
+        // Chemin UNC \\serveur\Dossier\Fichier.ext
+        if (path.startsWith("\\\\")) {
+            const withoutPrefix = path.replace(/^\\\\/, "");  // \\serveur\ -> serveur\
+            const urlPath = withoutPrefix.replace(/\\/g, "/"); // \ -> /
+            return "file://///" + encodeURI(urlPath);          // file://///serveur/...
+        }
+        // Chemin sur lecteur local ou réseau mappé : W:\Dossier\Fichier.ext
+        if (/^[A-Za-z]:\\/.test(path)) {
+            const urlPath = path.replace(/\\/g, "/");          // W:\Dossier\ -> W:/Dossier/
+            return "file:///" + encodeURI(urlPath);            // file:///W:/Dossier/...
+        }
+        // Sinon, on renvoie tel quel
+        return path;
+    }
+    function escapeHtml(str) {
+        return (str || "").replace(/&/g, "&amp;")
+                          .replace(/</g, "&lt;")
+                          .replace(/>/g, "&gt;");
+    }
+    // (3) Dates robustes : supporte YYYY-MM-DD et DD/MM/YYYY
+    function parseDateSmart(s) {
+        if (!s) return new Date(0);
+        const str = String(s).trim();
+        // ISO : YYYY-MM-DD
+        if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+            const d = new Date(str);
+            return isNaN(d.getTime()) ? new Date(0) : d;
+        }
+        // FR : DD/MM/YYYY
+        const m = str.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+        if (m) {
+            const dd = Number(m[1]);
+            const mm = Number(m[2]) - 1;
+            const yyyy = Number(m[3]);
+            const d = new Date(yyyy, mm, dd);
+            return isNaN(d.getTime()) ? new Date(0) : d;
+        }
+        // fallback
+        const d = new Date(str);
+        return isNaN(d.getTime()) ? new Date(0) : d;
+    }
+    // (4) Type automatique + icône
+    function getDocTypeFromUrl(rawUrl) {
+        const u = (rawUrl || "").toString().trim().toLowerCase();
+        if (u.startsWith("http://") || u.startsWith("https://")) return "Lien";
+        const m = u.match(/\.([a-z0-9]+)(\?|#|$)/i);
+        if (!m) return "Fichier";
+        const ext = m[1].toLowerCase();
+        if (["doc", "docx"].includes(ext)) return "Word";
+        if (["xls", "xlsx", "xlsm"].includes(ext)) return "Excel";
+        if (["ppt", "pptx"].includes(ext)) return "PowerPoint";
+        if (ext === "pdf") return "PDF";
+        if (ext === "txt") return "Texte";
+        if (ext === "csv") return "CSV";
+        if (["png", "jpg", "jpeg", "gif", "webp"].includes(ext)) return "Image";
+        return ext.toUpperCase();
+    }
+    function getDocIcon(type) {
+        switch (type) {
+            case "Lien": return "🔗";
+            case "Word": return "🟦";
+            case "Excel": return "🟩";
+            case "PowerPoint": return "🟧";
+            case "PDF": return "📕";
+            case "Image": return "🖼️";
+            case "CSV": return "📑";
+            case "Texte": return "📝";
+            default: return "📎";
+        }
+    }
+    // ========= CONFIGURATION DU THÈME =========
+    const THEME_KEY = "bibliothequeTheme";
+    const themeSelector = document.getElementById("themeSelector");
+    function applyTheme(theme) {
+        if (!theme) theme = "clair";
+        document.documentElement.setAttribute("data-theme", theme);
+        themeSelector.value = theme;
+        try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+    }
+    function loadTheme() {
+        let saved = "clair";
+        try { saved = localStorage.getItem(THEME_KEY) || "clair"; } catch (e) {}
+        applyTheme(saved);
+    }
+    themeSelector.addEventListener("change", (e) => {
+        applyTheme(e.target.value);
+    });
+    // ========= DONNÉES : LISTE DES DOCUMENTS A MODIFIER =========
+    // IMPORTANT : en JS, un chemin Windows doit avoir des backslashes échappés (\\)
+	const categories = {
+    "Fonctionnement interne": [
+        "Cartographie des services",
+        "Codes acte en liquidation (V264)",
+        "Régimes Sécurité Sociale",
+        "Grands Régimes",
+        "SQL dictionnaire des données",
+        "SQL Base De Service",
+        "Tableau émargement tutorat"
+    ],
+
+    "Assuré": [
+        "Invalidité/ASI",
+        "Falsification avis d’arrêt de travail/DAT/BS…",
+        "Falsification d’ordonnances",
+        "Cumul IJ/activité",
+        "Fraude à l’identité",
+        "Fraude au RIB",
+        "C2S",
+        "PUMA",
+        "CNSE",
+        "AME"
+    ],
+
+    "Professionnels de Santé": [
+        "MK",
+        "IDE",
+        "Pharmacie",
+        "Transporteur",
+        "Dentiste",
+        "Ortho",
+        "Sage-femme",
+        "Fournisseur",
+        "Audioprothésiste",
+        "Centre de santé",
+        "Labo",
+        "Pédicure-podologue",
+        "Orthoptiste",
+        "Charte de contrôle de l’activité d’un PS"
+    ],
+
+    "Droit de communication": [
+        "Droit de communication bancaire",
+        "Droit de communication employeur"
+    ],
+
+    "Répression": [
+        "Revue mensuelle",
+        "Modèle de courrier",
+        "Aide à la décision Directeur"
+    ]
+};
+	
+const documents = [
+
+{titre:"Guide Invalidité",description:"Document fictif",url:"https://example.com/invalidite.pdf",categorie:"Assuré",sousCategorie:"Invalidité/ASI",folder:"PDF",date:"2026-01-01"},
+{titre:"Procédure ASI",description:"Document fictif",url:"https://example.com/asi.pdf",categorie:"Assuré",sousCategorie:"Invalidité/ASI",folder:"PDF",date:"2026-01-02"},
+
+{titre:"Contrôle MK",description:"Document fictif",url:"https://example.com/mk.docx",categorie:"Professionnels de Santé",sousCategorie:"MK",folder:"Word",date:"2026-01-01"},
+{titre:"Requête MK",description:"Document fictif",url:"https://example.com/mk.xlsx",categorie:"Professionnels de Santé",sousCategorie:"MK",folder:"Excel",date:"2026-01-03"},
+
+{titre:"Cartographie",description:"Carthographie des services",url:"W:\\DFMR\\PAJLF\\SIRF\\Commun\\Fonctionnement service\\10- Outils pour le service\\Cartographie des services.xlsx",categorie:"Fonctionnement interne",sousCategorie:"Cartographie des services",folder:"Excel"},
+{titre:"V264",description:"V264",url:"https://referentiel-nomenclature.cnamts.fr:8443/app.php/trf/detail/PRS-NAT",categorie:"Fonctionnement interne",sousCategorie:"Codes acte en liquidation (V264)",folder:"url"},
+{titre:"Tableau revue mensuelle",description:"Tableau revue mensuelle",url:"W:\\Partage_CPAM_ELSM_CCX\\1- revue mensuelle\\Revue mensuelle des suites contentieuses.xlsx",categorie:"Répression",sousCategorie:"Revue mensuelle",folder:"Excel"},
+{titre:"Modèle DDC Banque",description:"Droit de communication bancaire",url:"W:\\DFMR\\PAJLF\\SIRF\\Commun\\Unité investigation\\Miam\\0.bibliotheque\\Fichiers pour BAO\\Droit de communication bancaire.docx",categorie:"Droit de communication",sousCategorie:"Droit de communication bancaire",folder:"Word"},
+{titre:"Modèle DDC Employeur",description:"Droit de communication employeur",url:"https://example.com/ddc.docx",categorie:"Droit de communication",sousCategorie:"Droit de communication employeur",folder:"Word",date:"2026-01-01"}
+];
+// ========= RENDU & FILTRES =========
+    const cardsContainer = document.getElementById("cardsContainer");
+    const emptyState = document.getElementById("emptyState");
+    const searchInput = document.getElementById("searchInput");
+    const sortSelector = document.getElementById("sortSelector");
+    const folderList = document.getElementById("folderList");
+    const categoryList = document.getElementById("categoryList");
+    const subCategoryList = document.getElementById("subCategoryList");
+    const subCategorySection = document.getElementById("subCategorySection");
+    const subCategoryTitle = document.getElementById("subCategoryTitle");
+    
+const favoritesList=document.getElementById('favoritesList');
+const recentList=document.getElementById('recentList');
+
+function getFavs(){return JSON.parse(localStorage.getItem('favs')||'[]');}
+function setFavs(v){localStorage.setItem('favs',JSON.stringify(v));renderSideLists();}
+function getRecent(){return JSON.parse(localStorage.getItem('recent')||'[]');}
+function setRecent(v){localStorage.setItem('recent',JSON.stringify(v));renderSideLists();}
+function clearRecents(){localStorage.removeItem('recent');renderSideLists();}
+
+function renderSideLists(){
+ const favs=getFavs();
+ favoritesList.innerHTML='';
+ favs.forEach(f=>{
+   const doc=documents.find(d=>d.titre===f);
+   if(doc){
+      favoritesList.innerHTML += `<li><a href="${convertPathToFileUrl(doc.url)}" target="_blank" rel="noopener noreferrer">⭐ ${f}</a></li>`;
+   }
+ });
+}
+
+let activeFolder = "";
+    let activeCategory = "";
+    let activeSubCategory = ""; subCategoryTitle.style.display="none";
+    // Au chargement : on cache la zone des sous-catégories
+    subCategorySection.style.display = "none";
+    
+function buildSubCategories() {
+    subCategoryList.innerHTML = "";
+
+    const subcats = categories[activeCategory] || [];
+
+    if (subcats.length === 0) {
+        subCategorySection.style.display = "none";
+        activeSubCategory = "";
+        subCategoryTitle.style.display = "none";
+        return;
+    }
+
+    subCategorySection.style.display = "block";
+
+    subcats.forEach((sub, index) => {
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+            <button class="filter-btn ${index === 0 ? "active" : ""}"
+                    data-subcat="${escapeHtml(sub)}">
+                ${escapeHtml(sub)}
+            </button>
+        `;
+
+        subCategoryList.appendChild(li);
+
+        
+    });
+
+    subCategoryTitle.style.display = "none";
+
+    subCategoryList.querySelectorAll("button.filter-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            activeSubCategory = btn.dataset.subcat;
+
+            subCategoryList.querySelectorAll("button.filter-btn")
+                .forEach(b => b.classList.remove("active"));
+
+            btn.classList.add("active");
+
+            subCategoryTitle.textContent = activeSubCategory;
+
+            renderDocs();
+        });
+    });
+}
+function buildFilters() {
+        const folders = new Set();
+        documents.forEach(doc => {
+            if (doc.folder) folders.add(doc.folder);
+        });
+        const categoryNames = Object.keys(categories);
+        folderList.innerHTML = "";
+        categoryList.innerHTML = "";
+        const liAllFolders = document.createElement("li");
+        liAllFolders.innerHTML = `<button class="filter-btn active" data-folder="">
+                <span>📂</span> Tous les Types
+            </button>`;
+        folderList.appendChild(liAllFolders);
+        folders.forEach(folder => {
+            const li = document.createElement("li");
+            li.innerHTML = `<button class="filter-btn" data-folder="${escapeHtml(folder)}">
+                    <span>📁</span> ${escapeHtml(folder)}
+                </button>`;
+            folderList.appendChild(li);
+        });
+        
+        categoryNames.forEach(cat => {
+            const li = document.createElement("li");
+            li.innerHTML = `<button class="filter-btn" data-category="${escapeHtml(cat)}">
+                    ${escapeHtml(cat)}
+                </button>`;
+            categoryList.appendChild(li);
+        });
+        folderList.querySelectorAll("button.filter-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                activeFolder = btn.getAttribute("data-folder") || "";
+                folderList.querySelectorAll("button.filter-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                renderDocs();
+            });
+        });
+        categoryList.querySelectorAll("button.filter-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                activeCategory = btn.getAttribute("data-category") || "";
+                categoryList.querySelectorAll("button.filter-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                activeSubCategory = "";
+                buildSubCategories();
+                cardsContainer.innerHTML='';
+            });
+        });
+        buildSubCategories();
+    }
+    function renderDocs() {
+        cardsContainer.innerHTML = "";
+        const search = searchInput.value.toLowerCase();
+        document.getElementById('breadcrumb').textContent =
+activeCategory ? `🏠 Accueil > ${activeCategory}${activeSubCategory ? ' > '+activeSubCategory : ''}` : '🏠 Accueil';
+
+        if (activeSubCategory) {
+            subCategoryTitle.textContent = activeSubCategory;
+            subCategoryTitle.style.display = "block";
+        } else {
+            subCategoryTitle.style.display = "none";
+        }
+        
+        const globalSearch = search.trim().length > 0;
+
+        if(!activeSubCategory && !globalSearch){
+            emptyState.style.display='block';
+            emptyState.innerHTML='Sélectionnez une sous-catégorie.';
+            return;
+        }
+
+        let visible = documents.filter(doc => {
+
+            const matchSearch =
+                (doc.titre || "").toLowerCase().includes(search) ||
+                (doc.description || "").toLowerCase().includes(search);
+            const matchFolder = !activeFolder || doc.folder === activeFolder;
+            const matchCategory =
+                globalSearch ? true :
+                (!activeCategory || doc.categorie === activeCategory);
+
+            const matchSubCategory =
+                globalSearch ? true :
+                (!activeSubCategory || doc.sousCategorie === activeSubCategory);
+            return matchSearch && matchFolder && matchCategory && matchSubCategory;
+        });
+        const sortBy = sortSelector.value;
+        visible.sort((a, b) => {
+            if (sortBy === "titre") {
+                return (a.titre || "").localeCompare(b.titre || "", "fr");
+            } else if (sortBy === "categorie") {
+                return (a.categorie || "").localeCompare(b.categorie || "", "fr");
+            } else if (sortBy === "dossier") {
+                return (a.folder || "").localeCompare(b.folder || "", "fr");
+            } else if (sortBy === "date") {
+                // (3) Tri date robuste : récent -> ancien
+                return parseDateSmart(b.date) - parseDateSmart(a.date);
+            }
+            return 0;
+        });
+        if (visible.length === 0) {
+            emptyState.style.display = "block";
+            return;
+        } else {
+            emptyState.style.display = "none";
+        }
+        visible.forEach(doc => {
+            const card = document.createElement("div");
+            card.className = "card";
+            // (4) Type + icône automatiques
+            const type = getDocTypeFromUrl(doc.url);
+            const icon = getDocIcon(type);
+            // Affichage date robuste
+            const d = parseDateSmart(doc.date);
+            const dateStr = (d && d.getTime() !== 0) ? d.toLocaleDateString("fr-FR") : "";
+            const folderTag = doc.folder ? `<span class="folder-tag">${escapeHtml(doc.folder)}</span>` : "";
+            const catTag = doc.categorie ? `<span class="chip">${escapeHtml(doc.categorie)}</span>` : "";
+            const subCatTag = doc.sousCategorie ? `<span class="folder-tag">${escapeHtml(doc.sousCategorie)}</span>` : "";
+            card.innerHTML = `
+                <div class="card-title">
+                    <span style="font-size:1.3rem">${icon}</span>
+                    <span>${escapeHtml(doc.titre)}</span>
+                    <span class="fav-star" data-title="${escapeHtml(doc.titre)}" style="cursor:pointer">☆</span>
+                    ${catTag}
+                    ${folderTag}
+                    ${subCatTag}
+                </div>
+                <div class="card-desc">
+                    ${escapeHtml(doc.description || "")}
+                </div>
+                <div class="card-footer">
+                    <a class="pill" href="${convertPathToFileUrl(doc.url)}" target="_blank" rel="noopener noreferrer">
+                        🔗 Ouvrir
+                    </a>
+                    <div class="small">
+                        ${escapeHtml(type)}${dateStr ? " · " + dateStr : ""}
+                    </div>
+                </div>
+            `;
+            cardsContainer.appendChild(card);
+
+            card.querySelector('.pill').addEventListener('click',()=>{
+                let r=getRecent().filter(x=>x!==doc.titre);
+                r.unshift(doc.titre);
+                setRecent(r.slice(0,5));
+            });
+
+            card.querySelector('.fav-star').addEventListener('click',(e)=>{
+                let f=getFavs();
+                if(f.includes(doc.titre)){f=f.filter(x=>x!==doc.titre);e.target.textContent='☆';}
+                else {f.push(doc.titre);e.target.textContent='⭐';}
+                setFavs(f);
+            });
+        });
+    }
+    searchInput.addEventListener("input", renderDocs);
+    sortSelector.addEventListener("change", renderDocs);
+    document.addEventListener("DOMContentLoaded", () => {
+        loadTheme();
+        buildFilters(); renderSideLists();
+        renderDocs();
+    });
+</script>
+
+<style>
+#adminModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999}
+#adminModal .box{background:white;width:900px;max-width:95%;margin:5vh auto;border-radius:12px;padding:20px;font-family:system-ui}
+#adminModal table{width:100%;border-collapse:collapse;margin-top:15px}
+#adminModal th,#adminModal td{border:1px solid #ddd;padding:8px;text-align:left}
+#adminModal .actions{display:flex;gap:8px;margin-bottom:10px}
+#adminModal button{padding:8px 12px;border-radius:8px;cursor:pointer}
+</style>
+
+<div id="adminModal">
+<div class="box">
+<h2>⚙ Administration (V2.1)</h2>
+<div class="actions">
+<button id="addDocBtn">➕ Ajouter un document</button>
+<button disabled>✏ Modifier (V2.2)</button>
+<button disabled>🗑 Supprimer (V2.3)</button>
+<button id="exportJson">📤 Export JSON</button>
+<input type="file" id="importJsonFile" accept=".json" style="display:none">
+<button id="importJson">📥 Import JSON</button>
+<button id="closeAdmin">Fermer</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Titre</th><th>Catégorie</th><th>Sous-catégorie</th><th>Type</th>
+</tr>
+</thead>
+<tbody id="adminTableBody"></tbody>
+</table>
+
+<hr>
+<h3>➕ Ajouter un document (V2.2)</h3>
+<div style="display:grid;grid-template-columns:180px 1fr;gap:8px;align-items:center">
+<label>Titre</label><input id="admTitre">
+<label>Description</label><input id="admDesc">
+<label>Catégorie</label><select id="admCat"></select>
+<label>Sous-catégorie</label><select id="admSub"></select>
+<label>Chemin / URL</label><input id="admUrl">
+</div>
+<div style="margin-top:12px">
+<button id="saveDoc">💾 Ajouter à la session</button>
+<span id="saveMsg" style="margin-left:10px;color:#0a7"></span>
+</div>
+<p style="color:#666">Le document est ajouté à la bibliothèque pendant cette session. La persistance sera ajoutée en V2.3.</p>
+
+
+<hr>
+<h3>🗂 Gestion des catégories (V2.5)</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<input id="newCat" placeholder="Nouvelle catégorie">
+<button id="addCatBtn">Ajouter catégorie</button>
+<input id="newSub" placeholder="Nouvelle sous-catégorie">
+<button id="addSubBtn">Ajouter sous-catégorie</button>
+</div>
+<div id="catStatus" style="margin-top:8px;color:#0a7"></div>
+</div>
+</div>
+
+<script>
+(function(){
+const btn=document.getElementById('adminBtn');
+const modal=document.getElementById('adminModal');
+const close=document.getElementById('closeAdmin');
+const body=document.getElementById('adminTableBody');
+if(btn){
+btn.addEventListener('click',()=>{
+ body.innerHTML='';
+ (documents||[]).forEach(d=>{
+   const tr=document.createElement('tr');
+   const type=getDocTypeFromUrl(d.url);
+   tr.innerHTML='<td>'+d.titre+'</td><td>'+d.categorie+'</td><td>'+d.sousCategorie+'</td><td>'+type+'</td>';
+   body.appendChild(tr);
+ });
+ modal.style.display='block';
+});
+}
+close.addEventListener('click',()=>modal.style.display='none');
+modal.addEventListener('click',e=>{if(e.target===modal)modal.style.display='none';});
+})();
+</script>
+
+
+<script>
+(function(){
+const cat=document.getElementById('admCat');
+const sub=document.getElementById('admSub');
+Object.keys(categories).forEach(c=>{
+ const o=document.createElement('option');o.value=c;o.textContent=c;cat.appendChild(o);
+});
+function refreshSubs(){
+ sub.innerHTML='';
+ (categories[cat.value]||[]).forEach(s=>{
+   const o=document.createElement('option');o.value=s;o.textContent=s;sub.appendChild(o);
+ });
+}
+cat.addEventListener('change',refreshSubs);
+refreshSubs();
+document.getElementById('saveDoc').addEventListener('click',()=>{
+ const d={
+  titre:document.getElementById('admTitre').value,
+  description:document.getElementById('admDesc').value,
+  categorie:cat.value,
+  sousCategorie:sub.value,
+  url:document.getElementById('admUrl').value,
+  folder:getDocTypeFromUrl(document.getElementById('admUrl').value)
+ };
+ documents.push(d);
+ if(typeof renderDocs==='function') renderDocs();
+ document.getElementById('saveMsg').textContent='Document ajouté (session en cours).';
+});
+})();
+</script>
+
+
+<script>
+(function(){
+function refreshAdminTable(){
+ const body=document.getElementById('adminTableBody');
+ if(!body) return;
+ body.innerHTML='';
+ documents.forEach((d,i)=>{
+   const tr=document.createElement('tr');
+   tr.innerHTML=`<td><input value="${d.titre||''}" data-f="titre"></td>
+   <td><input value="${d.categorie||''}" data-f="categorie"></td>
+   <td><input value="${d.sousCategorie||''}" data-f="sousCategorie"></td>
+   <td>${getDocTypeFromUrl(d.url)}</td>
+   <td><button data-i="${i}" class="saveRow">💾</button></td>
+   <td><button data-i="${i}" class="delRow">🗑</button></td>`;
+   body.appendChild(tr);
+ });
+ body.querySelectorAll('.saveRow').forEach(b=>b.onclick=()=>{
+   const i=+b.dataset.i;
+   const tr=b.closest('tr');
+   const ins=tr.querySelectorAll('input');
+   documents[i].titre=ins[0].value;
+   documents[i].categorie=ins[1].value;
+   documents[i].sousCategorie=ins[2].value;
+   if(typeof renderDocs==='function') renderDocs();
+   alert('Document modifié (session).');
+ });
+ body.querySelectorAll('.delRow').forEach(b=>b.onclick=()=>{
+   if(!confirm('Supprimer ce document ?')) return;
+   documents.splice(+b.dataset.i,1);
+   refreshAdminTable();
+   if(typeof renderDocs==='function') renderDocs();
+ });
+}
+const admin=document.getElementById('adminBtn');
+if(admin){
+ admin.addEventListener('click',()=>setTimeout(refreshAdminTable,50));
+}
+window.refreshAdminTable=refreshAdminTable;
+})();
+</script>
+
+
+<script>
+(function(){
+function download(name,text){
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));
+ a.download=name;
+ a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+document.getElementById('exportJson').onclick=function(){
+ download('documents.json',JSON.stringify(documents,null,2));
+};
+
+document.getElementById('importJson').onclick=function(){
+ document.getElementById('importJsonFile').click();
+};
+
+document.getElementById('importJsonFile').addEventListener('change',async function(e){
+ const f=e.target.files[0];
+ if(!f) return;
+ try{
+   const txt=await f.text();
+   const data=JSON.parse(txt);
+   if(!Array.isArray(data)) throw new Error();
+   documents.length=0;
+   data.forEach(x=>documents.push(x));
+   if(typeof renderDocs==='function') renderDocs();
+   if(typeof refreshAdminTable==='function') refreshAdminTable();
+   alert('Import terminé : '+documents.length+' document(s).');
+ }catch(err){
+   alert('Le fichier JSON est invalide.');
+ }
+});
+
+// sauvegarde locale automatique
+const _push=documents.push.bind(documents);
+documents.push=function(...args){
+ const r=_push(...args);
+ localStorage.setItem('bao_documents',JSON.stringify(documents));
+ return r;
+};
+window.addEventListener('beforeunload',()=>{
+ try{localStorage.setItem('bao_documents',JSON.stringify(documents));}catch(e){}
+});
+try{
+ const saved=localStorage.getItem('bao_documents');
+ if(saved){
+   const arr=JSON.parse(saved);
+   if(Array.isArray(arr)){
+      documents.length=0;
+      arr.forEach(x=>documents.push(x));
+      if(typeof renderDocs==='function') renderDocs();
+   }
+ }
+}catch(e){}
+})();
+</script>
+
+
+<script>
+(function(){
+function refreshCategorySelects(){
+ const cat=document.getElementById('admCat');
+ if(!cat) return;
+ const current=cat.value;
+ cat.innerHTML='';
+ Object.keys(categories).forEach(c=>{
+   const o=document.createElement('option');
+   o.value=c;o.textContent=c;
+   cat.appendChild(o);
+ });
+ if(categories[current]) cat.value=current;
+ cat.dispatchEvent(new Event('change'));
+ if(typeof buildFilters==='function'){
+    buildFilters();
+    renderDocs();
+ }
+}
+document.getElementById('addCatBtn').onclick=function(){
+ const v=document.getElementById('newCat').value.trim();
+ if(!v) return;
+ if(!categories[v]) categories[v]=[];
+ refreshCategorySelects();
+ document.getElementById('catStatus').textContent='Catégorie ajoutée.';
+};
+document.getElementById('addSubBtn').onclick=function(){
+ const c=document.getElementById('admCat').value;
+ const s=document.getElementById('newSub').value.trim();
+ if(!c||!s) return;
+ if(!categories[c].includes(s)) categories[c].push(s);
+ refreshCategorySelects();
+ document.getElementById('catStatus').textContent='Sous-catégorie ajoutée.';
+};
+})();
+</script>
+
+</body>
+</html>
